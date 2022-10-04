@@ -8,7 +8,7 @@ blocks:
   - name: Billing service build
     task:
       jobs:
-        - name: go test
+        - name: Go test
           commands:
             - sem-version go 1.14
             - export GO111MODULE=on
@@ -19,3 +19,39 @@ blocks:
             - go get ./...
             - go test ./...
             - go build -v .
+    run:
+      when: change_in('/services/billing')
+    dependencies: []
+  - name: Users service build
+    run:
+      when: change_in('/services/users')
+    dependencies: []
+    task:
+      jobs:
+        - name: Ruby test
+          commands:
+            - sem-version ruby 2.5
+            - checkout
+            - cd services/users
+            - cache restore
+            - bundle install
+            - cache store
+            - bundle exec ruby test.rb
+  - name: UI service build
+    dependencies: []
+    run:
+      when: change_in('/services/ui')
+    task:
+      jobs:
+        - name: UI test
+          commands:
+            - checkout
+            - cd services/ui
+            - sem-version elixir 1.9
+            - cache restore
+            - mix local.hex --force
+            - mix local.rebar --force
+            - mix deps.get
+            - mix deps.compile
+            - cache store
+            - mix test
