@@ -11,3 +11,6 @@ blocks:
         - name: 'Job #1'
           commands:
             - echo "job 1 of promotion 1"
+      env_vars:
+        - name: MY_VARIABLE
+          value: 'Dev, Int'
